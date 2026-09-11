@@ -247,7 +247,7 @@ def run_keygen(config: AppConfig, output_path: Optional[str] = None) -> int:
     import subprocess
     try:
         res = subprocess.run(
-            [binary_path, "keygen", "--output", target_path],
+            [binary_path, "keygen", "--out", target_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
