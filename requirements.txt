@@ -1,0 +1,11 @@
+# Core dependencies (compatible with Python 3.9+ and Android Termux / PRoot)
+tomli>=2.0.1; python_version < '3.11'
+tomli-w>=1.0.0
+
+# Optional enhanced dependencies (recommended if build tools available)
+# psutil>=5.9.0
+# websockets>=11.0
+
+# Development & testing
+pytest>=7.0.0
+pytest-mock>=3.10.0

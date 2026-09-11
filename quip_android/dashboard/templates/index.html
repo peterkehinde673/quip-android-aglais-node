@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quip Android Node Controller</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-bright: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; }
+    body { background: var(--bg); color: var(--text); padding: 14px; max-width: 680px; margin: 0 auto; line-height: 1.4; }
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+    .badge { font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; }
+    .badge-eco { background: rgba(63, 185, 80, 0.15); color: var(--success); border: 1px solid var(--success); }
+    .badge-daily { background: rgba(88, 166, 255, 0.15); color: var(--accent); border: 1px solid var(--accent); }
+    .badge-perf { background: rgba(210, 153, 34, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+    .stat-label { color: var(--text-muted); }
+    .stat-val { color: var(--text-bright); font-weight: 500; text-align: right; word-break: break-all; }
+    .val-highlight { color: var(--accent); font-weight: 600; }
+    .val-good { color: var(--success); }
+    .val-warn { color: var(--warning); }
+    .val-bad { color: var(--danger); }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    button { background: #21262d; border: 1px solid var(--border); color: var(--text-bright); padding: 10px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    button:active { opacity: 0.7; }
+    button.btn-primary { background: #238636; border-color: #2ea043; }
+    button.btn-danger { background: #da3633; border-color: #f85149; }
+    .disclaimer { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 14px; }
+    .log-box { background: #090d13; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: #7ee787; max-height: 120px; overflow-y: auto; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h2 style="font-size: 17px; color: var(--text-bright);">Quip Aglais Controller</h2>
+      <div style="font-size: 12px; color: var(--text-muted);">quip-android-aglais-node v0.2.1</div>
+    </div>
+    <span id="mode-badge" class="badge badge-eco">ECO MODE</span>
+  </header>
+
+  <!-- NODE STATUS CARD -->
+  <div class="card">
+    <div class="card-title">Node & Network Status</div>
+    <div class="stat-row">
+      <span class="stat-label">Network</span>
+      <span class="stat-val" id="val-network">Aglais Testnet (quip-testnet)</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Active RPC</span>
+      <span class="stat-val" id="val-rpc" style="font-size: 12px;">Checking...</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">RPC Health</span>
+      <span class="stat-val val-good" id="val-rpc-health">Verifying</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Device Profile</span>
+      <span class="stat-val" id="val-device">Infinix Note G96 (ARM64)</span>
+    </div>
+  </div>
+
+  <!-- MINER STATUS CARD -->
+  <div class="card">
+    <div class="card-title">
+      <span>Miner Status</span>
+      <span id="val-safety" class="val-good" style="font-size: 11px;">SAFETY: NORMAL</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">State</span>
+      <span class="stat-val val-highlight" id="val-miner-status">Stopped</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">CPU Workers</span>
+      <span class="stat-val" id="val-workers">1 (Eco limit)</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">GPU Architecture</span>
+      <span class="stat-val" id="val-gpu" style="font-size: 12px;">Unavailable (Mali/ARM64)</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Session Runtime</span>
+      <span class="stat-val" id="val-runtime">0.0 min</span>
+    </div>
+    <div class="controls">
+      <button class="btn-primary" id="btn-start" onclick="startMiner()">START MINER</button>
+      <button class="btn-danger" id="btn-stop" onclick="stopMiner()">STOP MINER</button>
+    </div>
+  </div>
+
+  <!-- PARTICIPATION & POINTS CARD -->
+  <div class="card">
+    <div class="card-title">Real Participation & Points</div>
+    <div class="stat-row">
+      <span class="stat-label">Today's Verified Qblocks</span>
+      <span class="stat-val val-highlight" id="val-qblocks">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Qblock Wins</span>
+      <span class="stat-val val-good" id="val-wins">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Estimated Points</span>
+      <span class="stat-val val-highlight" id="val-points">0.0 pts</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Latest Evidence</span>
+      <span class="stat-val" id="val-event" style="font-size: 12px; color: var(--text-muted);">Miner stopped.</span>
+    </div>
+  </div>
+
+  <!-- HARDWARE & RESOURCES CARD -->
+  <div class="card">
+    <div class="card-title">Hardware & Safety Telemetry</div>
+    <div class="stat-row">
+      <span class="stat-label">CPU Usage</span>
+      <span class="stat-val" id="val-cpu">0%</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Memory Usage</span>
+      <span class="stat-val" id="val-mem">0% (0 / 0 MB)</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Battery Status</span>
+      <span class="stat-val" id="val-battery">Checking</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Device Thermal</span>
+      <span class="stat-val" id="val-temp">Checking</span>
+    </div>
+  </div>
+
+  <!-- LIVE LOG CONSOLE -->
+  <div class="card">
+    <div class="card-title">Miner Event Log</div>
+    <div class="log-box" id="log-box">Waiting for miner session...</div>
+  </div>
+
+  <div class="disclaimer">
+    UNOFFICIAL LOCAL ESTIMATE<br>
+    Participation points depend strictly on actual distinct qblock participation recorded by the Quip Network. Running briefly does not guarantee points.
+  </div>
+
+  <script>
+    async function updateStatus() {
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) return;
+        const d = await res.json();
+
+        document.getElementById('val-rpc').textContent = d.rpc.active_endpoint || 'None';
+        document.getElementById('val-miner-status').textContent = d.miner.status;
+        document.getElementById('val-workers').textContent = d.miner.workers;
+        document.getElementById('val-runtime').textContent = d.miner.runtime_minutes + ' min';
+        document.getElementById('val-gpu').textContent = d.hardware.gpu_available ? 'CUDA Active' : 'Unavailable on ARM64';
+        document.getElementById('val-device').textContent = d.node.device + ' (' + d.node.environment + ')';
+
+        document.getElementById('val-qblocks').textContent = d.participation.today_verified_qblocks;
+        document.getElementById('val-wins').textContent = d.participation.today_wins;
+        document.getElementById('val-points').textContent = d.points.total_estimated_points + ' pts';
+        document.getElementById('val-event').textContent = d.participation.status_message;
+
+        document.getElementById('val-cpu').textContent = d.resources.cpu_percent + '% (' + d.hardware.cpu_cores + ' cores)';
+        document.getElementById('val-mem').textContent = d.resources.memory_percent + '% (' + Math.round(d.resources.memory_used_mb) + 'MB used)';
+        document.getElementById('val-battery').textContent = d.resources.battery;
+        document.getElementById('val-temp').textContent = d.resources.temperature;
+
+        const safetyEl = document.getElementById('val-safety');
+        safetyEl.textContent = 'SAFETY: ' + d.safety.status.toUpperCase();
+        safetyEl.className = d.safety.status === 'normal' ? 'val-good' : (d.safety.status === 'warning' ? 'val-warn' : 'val-bad');
+
+        const modeBadge = document.getElementById('mode-badge');
+        modeBadge.textContent = d.node.mode.toUpperCase() + ' MODE';
+        modeBadge.className = 'badge badge-' + (d.node.mode === 'daily' ? 'daily' : (d.node.mode === 'performance' ? 'perf' : 'eco'));
+      } catch (err) {
+        console.error('Update failed:', err);
+      }
+    }
+
+    async function startMiner() {
+      const res = await fetch('/api/start', { method: 'POST' });
+      const d = await res.json();
+      alert(d.message || (d.success ? 'Miner started' : 'Failed to start'));
+      updateStatus();
+    }
+
+    async function stopMiner() {
+      const res = await fetch('/api/stop', { method: 'POST' });
+      const d = await res.json();
+      alert(d.message || 'Miner stopped');
+      updateStatus();
+    }
+
+    setInterval(updateStatus, 3000);
+    updateStatus();
+  </script>
+</body>
+</html>

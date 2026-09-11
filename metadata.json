@@ -1,0 +1,6 @@
+{
+  "name": "quip-android-aglais-node",
+  "description": "Android-friendly Quip Network Aglais Testnet node and miner smart controller with RPC failover, real participation monitoring, and resource management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
