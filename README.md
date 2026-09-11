@@ -1,106 +1,52 @@
 # quip-android-aglais-node
 
-An open-source, low-power, mobile-optimized node and miner controller for the **Quip Network Aglais Testnet** (v0.2.1+).
+An **unofficial, low-power controller and monitoring tool** for operating a Quip miner against the **Aglais testnet**.
 
-Engineered specifically for **Android ARM64** devices (primary target: **Infinix Note G96** running **Termux → Ubuntu PRoot**) while retaining complete portability across standard Linux PCs and servers.
+> **Important:** This repository is not a Quip validator and does not itself implement the Quip mining protocol. It detects and launches a compatible official `quip-miner` runtime, monitors the local process, checks configured Substrate RPC endpoints, and keeps a local evidence journal.
 
----
+## Current status
 
-## Key Highlights
+The controller source code is present, but **real mining depends on a compatible official Quip miner/runtime**. A Google AI web preview or GitHub repository alone cannot mine; a real execution environment is still required.
 
-- **Ultra-Low Resource Footprint**: Zero heavy external dependencies. Includes a custom RFC 6455 Substrate JSON-RPC WebSocket engine and minimal TOML parser to operate effortlessly within constrained PRoot environments.
-- **True Substrate JSON-RPC Architecture**: Accurately targets Substrate WebSocket RPC endpoints (`wss://` / `ws://`), strictly rejecting raw P2P bootnodes (port `30333`).
-- **Real Participation Verification**: Rejects fake counters or vanity claims. Cryptographically verifies real mining progress through log evidence, qblock solutions, and challenge confirmations recorded in `data/participation.jsonl`.
-- **Automatic Multi-RPC Failover**: Continuously monitors latency, peer count, block height, and chain identity across candidate Aglais bootnode RPCs, auto-switching when an endpoint degrades.
-- **Hardware & Safety Guardian**: Enforces memory thresholds, max session runtimes, thermal limits, and low-priority process scheduling (`nice 19`).
-- **Unofficial Local Points Estimator**: Strictly adheres to official Quip rules (1 point per distinct qblock, capped at 72 points/day; 20 points per win; infrastructure multipliers only when independently verified).
-- **Mobile Web Dashboard**: Built-in, zero-dependency dark-mode web dashboard accessible directly from phone browsers at `http://127.0.0.1:8080`.
+The current official Aglais deployment uses a Substrate validator + config-driven miner architecture. Verify the installed `quip-miner` version and CLI/config schema before starting. The controller must never claim points merely because a process is running. citeturn1search0turn1search1
 
----
+## Key features
 
-## Operating Modes
+- Android/Termux/Ubuntu PRoot-aware environment detection
+- CPU-first low-power operating modes
+- Optional CUDA capability detection for compatible Linux hardware
+- Substrate RPC DNS/TCP/WebSocket health checks and endpoint selection
+- Safe signer-key handling
+- Process priority and runtime safety controls
+- Local participation evidence journal
+- **Unofficial** points estimation based only on recorded evidence
+- Local mobile dashboard at `127.0.0.1:8080`
 
-| Mode | Workers | Nice | Description |
-|---|---|---|---|
-| `eco` | 1 | 19 | Minimal thermal footprint, safe for long sessions on battery. |
-| `daily` | 1–2 | 19 | Low-power daily participation session. Stops automatically upon reaching daily qblock target or session limit. |
-| `performance` | Configurable | 10 | Max throughput. Recommended only when connected to a charger with active cooling. |
+## Quick start
 
----
+Clone **your repository**:
 
-## Quick Start on Android (Termux + Ubuntu PRoot)
-
-### 1. Install & Setup
 ```bash
-# Clone the repository inside your Ubuntu PRoot environment
-git clone https://github.com/quip-network/quip-android-aglais-node.git
+git clone https://github.com/peterkehinde673/quip-android-aglais-node.git
 cd quip-android-aglais-node
-
-# Run automated installer
 ./scripts/install.sh
-```
-
-### 2. Verify System Health
-```bash
 ./scripts/run.sh doctor
 ```
 
-### 3. Check Substrate RPC Connectivity
-```bash
-./scripts/run.sh rpc-check
-```
+The doctor command must find a compatible `quip-miner` before mining can start.
 
-### 4. Configure Signing Key
-If you already possess a Quip signer key:
-```toml
-# Edit config.toml
-[signer]
-key_path = "/path/to/your/signing.json"
-require_existing = true
-```
-Or generate one explicitly:
-```bash
-./scripts/run.sh keygen --output ~/.quip-miner/signing.json
-```
+## Important limitations
 
-### 5. Start Mining
-```bash
-# Start in Eco Mode (1 CPU worker, lowest priority)
-./scripts/run.sh start --mode eco
+- Running the dashboard alone does not run a node or miner.
+- A short mining session does not guarantee daily participation points.
+- A local dashboard is not automatically a verified public-infrastructure bonus.
+- Local log matching is not equivalent to an official account-points balance.
+- The controller should be updated whenever Quip changes the miner CLI or config schema.
 
-# Or launch local web dashboard
-./scripts/run.sh dashboard
-```
+## Aglais network
 
----
-
-## CLI Reference
-
-```bash
-quip-android doctor              # System & network diagnostics
-quip-android rpc-check           # Live latency & peer check across RPCs
-quip-android status              # Formatted live status table
-quip-android hardware            # CPU architecture & GPU CUDA report
-quip-android start --mode <mode> # Launch miner (eco, daily, performance)
-quip-android stop                # Cleanly shut down miner process
-quip-android logs -n 50          # Tail recent session logs
-quip-android participation       # Review verified on-chain qblock journal
-quip-android dashboard           # Launch local web dashboard (localhost:8080)
-quip-android config --show       # Output active configuration
-```
-
----
-
-## Documentation
-
-- [Hardware & Android PRoot Deployment Guide](docs/ANDROID_TERMUX_GUIDE.md)
-- [Architecture & Design](docs/ARCHITECTURE.md)
-- [Points & Participation Evidence Engine](docs/POINTS_AND_PARTICIPATION.md)
-- [RPC Failover & Substrate Health](docs/FAILOVER_AND_RPC.md)
-- [Troubleshooting & FAQs](docs/TROUBLESHOOTING.md)
-
----
+Aglais is the current Quip public testnet. The official operator repository documents the current network identity, public RPC endpoints, faucet, and config-driven CPU/CUDA deployment architecture. citeturn1search0turn1search1
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+Apache License 2.0. See [LICENSE](LICENSE).
