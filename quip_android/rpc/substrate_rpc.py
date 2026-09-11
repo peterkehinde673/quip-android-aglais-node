@@ -54,17 +54,11 @@ class LightweightWebSocketClient:
         raw_sock.settimeout(self.timeout)
 
         if self.scheme == "wss":
+            # Never silently disable certificate verification. A failed TLS
+            # handshake is a health-check failure, not a reason to trust an
+            # unauthenticated endpoint.
             ssl_context = ssl.create_default_context()
-            # In some Android PRoot environments, system CA cert paths can be missing or custom
-            # We attempt standard verification; if CA certificates are not configured, we allow fallback
-            try:
-                self.sock = ssl_context.wrap_socket(raw_sock, server_hostname=self.host)
-            except ssl.SSLError:
-                ssl_context.check_hostname = False
-                ssl_context.verify_mode = ssl.CERT_NONE
-                raw_sock.close()
-                raw_sock = socket.create_connection((self.host, self.port), timeout=self.timeout)
-                self.sock = ssl_context.wrap_socket(raw_sock, server_hostname=self.host)
+            self.sock = ssl_context.wrap_socket(raw_sock, server_hostname=self.host)
         else:
             self.sock = raw_sock
 
