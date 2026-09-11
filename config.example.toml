@@ -75,7 +75,7 @@ public_api = false
 tls = false
 live_rpc = false
 telemetry = false
-dashboard = true
+# Set true only after the dashboard is genuinely live and independently verified as an eligible public feature\ndashboard = false
 
 [dashboard]
 # Lightweight local web dashboard for phone browser
