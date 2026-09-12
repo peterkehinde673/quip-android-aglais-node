@@ -146,20 +146,23 @@ class ResourceMonitor:
     def _read_temperature(self) -> Tuple[Optional[float], str]:
         """Read CPU / SOC thermal sensor if accessible."""
         thermal_base = "/sys/class/thermal"
-        if os.path.isdir(thermal_base):
-            for entry in os.listdir(thermal_base):
-                if entry.startswith("thermal_zone"):
-                    temp_path = os.path.join(thermal_base, entry, "temp")
-                    if os.path.isfile(temp_path):
-                        try:
-                            with open(temp_path, "r") as f:
-                                raw = float(f.read().strip())
-                                # Millidegrees vs degrees
-                                deg_c = raw / 1000.0 if raw > 200 else raw
-                                if 10.0 <= deg_c <= 120.0:
-                                    return (round(deg_c, 1), f"{deg_c:.1f}°C")
-                        except Exception:
-                            pass
+        try:
+            entries = os.listdir(thermal_base)
+        except (FileNotFoundError, NotADirectoryError, PermissionError, OSError):
+            return (None, "Not available in this environment")
+
+        for entry in entries:
+            if entry.startswith("thermal_zone"):
+                temp_path = os.path.join(thermal_base, entry, "temp")
+                try:
+                    with open(temp_path, "r") as f:
+                        raw = float(f.read().strip())
+                    # Millidegrees vs degrees
+                    deg_c = raw / 1000.0 if raw > 200 else raw
+                    if 10.0 <= deg_c <= 120.0:
+                        return (round(deg_c, 1), f"{deg_c:.1f}°C")
+                except (FileNotFoundError, PermissionError, OSError, ValueError):
+                    continue
 
         return (None, "Not available in this environment")
 
