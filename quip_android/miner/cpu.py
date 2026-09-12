@@ -37,10 +37,13 @@ class CpuMinerCommandBuilder:
             workers = 1
         elif self.config.node.mode == "daily":
             workers = min(workers, 2)
-        validators = [active_rpc] + [\n            ep for ep in self.config.rpc.endpoints\n            if ep != active_rpc\n            and ep.lower().startswith(("ws://", "wss://"))\n            and ":30333" not in ep\n        ]\n        config_path = build_runtime_config(\n            self.config, validators, workers, "cpu", custom_signer_key\n        )
-        accepted, output = validate_runtime_config(binary_path, config_path)
-        if not accepted:
-            return None, ["Installed quip-miner rejected the generated config-driven runtime file.", f"Validation output: {output}", "Update the official miner or adjust the generated config to the installed schema before mining."]
-        command = [binary_path, "--config", config_path, "--mode", "cpu"]
-        command.extend(self.config.miner.extra_args)
-        return command, []
+        validators = [active_rpc] + [
+            ep
+            for ep in self.config.rpc.endpoints
+            if ep != active_rpc
+            and ep.lower().startswith(("ws://", "wss://"))
+            and ":30333" not in ep
+        ]
+        config_path = build_runtime_config(
+            self.config, validators, workers, "cpu", custom_signer_key
+        )
