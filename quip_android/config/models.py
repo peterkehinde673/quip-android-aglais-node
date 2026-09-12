@@ -29,6 +29,11 @@ class MinerConfig:
     max_runtime_minutes: int = 60
     quip_miner_path: str = "auto"
     extra_args: List[str] = field(default_factory=list)
+    runtime_config_path: str = "data/quip-miner.runtime.toml"
+    node_name: str = "quip-android"
+    faucet_url: str = "https://faucet.aglais.quip.network"
+    cpu_binary: str = "quip-cpu-sa"
+    gpu_binary: str = "quip-cuda-sa"
 
     def validate(self) -> List[str]:
         errors = []
@@ -38,6 +43,8 @@ class MinerConfig:
             errors.append("Worker count must be at least 1")
         if self.max_runtime_minutes < 0:
             errors.append("max_runtime_minutes cannot be negative")
+        if not self.runtime_config_path:
+            errors.append("runtime_config_path cannot be empty")
         return errors
 
 
@@ -123,7 +130,7 @@ class PointsConfig:
     tls: bool = False
     live_rpc: bool = False
     telemetry: bool = False
-    dashboard: bool = True
+    dashboard: bool = False
 
 
 @dataclass
