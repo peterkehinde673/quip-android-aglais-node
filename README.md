@@ -1,52 +1,63 @@
 # quip-android-aglais-node
 
-An **unofficial, low-power controller and monitoring tool** for operating a Quip miner against the **Aglais testnet**.
+Unofficial low-power controller and monitor for running a compatible official quip-miner against the Aglais testnet.
 
-> **Important:** This repository is not a Quip validator and does not itself implement the Quip mining protocol. It detects and launches a compatible official `quip-miner` runtime, monitors the local process, checks configured Substrate RPC endpoints, and keeps a local evidence journal.
+## Current workflow
 
-## Current status
+The controller now uses a config-driven workflow:
 
-The controller source code is present, but **real mining depends on a compatible official Quip miner/runtime**. A Google AI web preview or GitHub repository alone cannot mine; a real execution environment is still required.
+1. Select a healthy Aglais Substrate RPC.
+2. Detect an installed official quip-miner.
+3. Generate data/quip-miner.runtime.toml.
+4. Validate it with resolve-modes or resolve-mode.
+5. Launch quip-miner with --config and the selected backend mode.
 
-The current official Aglais deployment uses a Substrate validator + config-driven miner architecture. Verify the installed `quip-miner` version and CLI/config schema before starting. The controller must never claim points merely because a process is running. citeturn1search0turn1search1
+The generated runtime config contains validators, signer_key, Aglais faucet_url, and a CPU backend section. This follows the current official direction where miner configuration is file-driven rather than assembled from legacy environment variables. citeturn0search0turn0search1turn0search3turn0search4
 
-## Key features
+## Smallest Android setup
 
-- Android/Termux/Ubuntu PRoot-aware environment detection
-- CPU-first low-power operating modes
-- Optional CUDA capability detection for compatible Linux hardware
-- Substrate RPC DNS/TCP/WebSocket health checks and endpoint selection
-- Safe signer-key handling
-- Process priority and runtime safety controls
-- Local participation evidence journal
-- **Unofficial** points estimation based only on recorded evidence
-- Local mobile dashboard at `127.0.0.1:8080`
+Ubuntu/PRoot is not required just to run this controller.
 
-## Quick start
+Android -> Termux -> Python virtual environment -> controller
 
-Clone **your repository**:
+In Termux:
 
-```bash
-git clone https://github.com/peterkehinde673/quip-android-aglais-node.git
-cd quip-android-aglais-node
-./scripts/install.sh
-./scripts/run.sh doctor
-```
+    pkg update -y
+    pkg install -y git python
+    git clone https://github.com/peterkehinde673/quip-android-aglais-node.git
+    cd quip-android-aglais-node
+    ./scripts/termux-setup.sh
+    ./scripts/install.sh
+    ./scripts/run.sh doctor
 
-The doctor command must find a compatible `quip-miner` before mining can start.
+The controller is lightweight, but real mining still requires a compatible official quip-miner runtime. The installer does not fake-install one. If the official miner cannot run in Termux, doctor/config validation should expose that before any mining process starts.
 
-## Important limitations
+## Aglais defaults
 
-- Running the dashboard alone does not run a node or miner.
-- A short mining session does not guarantee daily participation points.
-- A local dashboard is not automatically a verified public-infrastructure bonus.
-- Local log matching is not equivalent to an official account-points balance.
-- The controller should be updated whenever Quip changes the miner CLI or config schema.
+- Chain id: quip_testnet
+- Public RPC: wss://bootnode-{1,2,3}.aglais.quip.network:20049/rpc
+- Faucet: https://faucet.aglais.quip.network
+- CPU config: [cpu] with num_cpus
+- Current config-driven schema uses backend binary selection such as quip-cpu-sa. citeturn0search0turn0search1turn0search4
 
-## Aglais network
+## Eco mode
 
-Aglais is the current Quip public testnet. The official operator repository documents the current network identity, public RPC endpoints, faucet, and config-driven CPU/CUDA deployment architecture. citeturn1search0turn1search1
+After doctor confirms a compatible miner and signer:
 
-## License
+    ./scripts/run.sh start --mode eco --max-runtime 30
 
-Apache License 2.0. See [LICENSE](LICENSE).
+Eco mode clamps CPU mining to one worker and uses low process priority.
+
+A short session does not guarantee participation points.
+
+## Security
+
+- Signing keys are never generated silently.
+- Existing configs are preserved.
+- Runtime configs are written with restrictive permissions where supported.
+- TLS verification is not silently disabled.
+- Infrastructure bonuses default to disabled.
+
+## Limitations
+
+This repository is not an official Quip validator and does not itself implement the Quip mining protocol. Local log evidence and local point estimates are not official account balances.
