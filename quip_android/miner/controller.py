@@ -104,7 +104,7 @@ class MinerController:
                 return (False, f"Invalid mode '{target_mode}'. Choose from: eco, daily, performance")
 
             self.active_mode = target_mode
-            self.session_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            # Keep command generation consistent with the mode requested by the CLI.\n            self.config.node.mode = target_mode\n            self.session_id = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
             self._stop_requested.clear()
 
             # Determine workers based on mode
