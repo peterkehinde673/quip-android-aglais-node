@@ -26,9 +26,9 @@ In Termux:
     pkg install -y git python
     git clone https://github.com/peterkehinde673/quip-android-aglais-node.git
     cd quip-android-aglais-node
-    ./scripts/termux-setup.sh
-    ./scripts/install.sh
-    ./scripts/run.sh doctor
+    bash scripts/termux-setup.sh
+    bash scripts/install.sh
+    bash scripts/run.sh doctor
 
 The controller is lightweight, but real mining still requires a compatible official quip-miner runtime. The installer does not fake-install one. If the official miner cannot run in Termux, doctor/config validation should expose that before any mining process starts.
 
@@ -44,7 +44,7 @@ The controller is lightweight, but real mining still requires a compatible offic
 
 After doctor confirms a compatible miner and signer:
 
-    ./scripts/run.sh start --mode eco --max-runtime 30
+    bash scripts/run.sh start --mode eco --max-runtime 30
 
 Eco mode clamps CPU mining to one worker and uses low process priority.
 
