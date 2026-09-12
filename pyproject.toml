@@ -45,3 +45,6 @@ psutil = [
 
 [project.scripts]
 quip-android = "quip_android.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["quip_android*"]
