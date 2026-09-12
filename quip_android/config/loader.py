@@ -155,6 +155,11 @@ def dict_to_app_config(d: Dict[str, Any]) -> AppConfig:
             max_runtime_minutes=max_rt,
             quip_miner_path=str(md.get("quip_miner_path", config.miner.quip_miner_path)),
             extra_args=list(extra_args),
+            runtime_config_path=str(md.get("runtime_config_path", config.miner.runtime_config_path)),
+            node_name=str(md.get("node_name", config.miner.node_name)),
+            faucet_url=str(md.get("faucet_url", config.miner.faucet_url)),
+            cpu_binary=str(md.get("cpu_binary", config.miner.cpu_binary)),
+            gpu_binary=str(md.get("gpu_binary", config.miner.gpu_binary)),
         )
 
     if "rpc" in d and isinstance(d["rpc"], dict):
@@ -231,6 +236,11 @@ def app_config_to_dict(config: AppConfig) -> Dict[str, Any]:
             "max_runtime_minutes": config.miner.max_runtime_minutes,
             "quip_miner_path": config.miner.quip_miner_path,
             "extra_args": config.miner.extra_args,
+            "runtime_config_path": config.miner.runtime_config_path,
+            "node_name": config.miner.node_name,
+            "faucet_url": config.miner.faucet_url,
+            "cpu_binary": config.miner.cpu_binary,
+            "gpu_binary": config.miner.gpu_binary,
         },
         "rpc": {
             "endpoints": config.rpc.endpoints,
