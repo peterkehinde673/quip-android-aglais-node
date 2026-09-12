@@ -1,85 +1,58 @@
-# quip-android-aglais-node configuration
-# Copy this file to config.toml before running or use: quip-android config --init
+# quip-android-aglais-node controller configuration
 
 [node]
-# Network identifier (Aglais testnet runs chain 'quip-testnet')
 network = "aglais"
 chain_id = "quip-testnet"
-# Operating mode: "eco" (1 worker, low heat), "daily" (1-2 workers, auto-stop on target), "performance" (max power, warning on phone)
 mode = "eco"
-# Device identification tag
 device_label = "Infinix-Note-G96"
 
 [miner]
-# Primary mining backend: "cpu" (supported on Android), "gpu" (optional, CUDA only)
 backend = "cpu"
-# CPU worker count (recommended: 1 for eco, 1-2 for daily, up to 4 for performance)
 workers = 1
-# Maximum session duration in minutes (0 for indefinite, 60 recommended for battery preservation)
 max_runtime_minutes = 60
-# Path to official quip-miner binary ("auto" will search standard paths and PATH)
 quip_miner_path = "auto"
-# Additional CLI arguments passed to quip-miner if needed
 extra_args = []
+runtime_config_path = "data/quip-miner.runtime.toml"
+node_name = "quip-android"
+faucet_url = "https://faucet.aglais.quip.network"
+cpu_binary = "quip-cpu-sa"
+gpu_binary = "quip-cuda-sa"
 
 [rpc]
-# Candidate Substrate WebSocket RPC endpoints for Aglais Testnet
-# NOTE: These MUST be Substrate RPC endpoints (ws:// or wss://), NOT P2P bootnodes (tcp/30333)!
-# The controller validates each endpoint with health checks before selection and fails over automatically.
 endpoints = [
     "wss://bootnode-1.aglais.quip.network:20049/rpc",
     "wss://bootnode-2.aglais.quip.network:20049/rpc",
     "wss://bootnode-3.aglais.quip.network:20049/rpc"
 ]
-# Timeout for RPC health check in seconds
 timeout_seconds = 6.0
-# Retry backoff interval in seconds
 retry_interval_seconds = 10.0
-# Require chain identity validation ('quip-testnet')
 require_chain_match = true
 
 [signer]
-# Path to existing Quip signing key file (never auto-regenerated)
-# Default is standard Quip keystore location
 key_path = "~/.quip-miner/signing.json"
-# Require key to exist before starting mining
 require_existing = true
 
 [safety]
-# Safety guardrails for Android ARM64 thermal & battery stability
-# Maximum allowed system memory usage % before triggering graceful shutdown
 max_memory_percent = 85.0
-# Maximum continuous session runtime before mandatory cooldown (minutes)
 max_runtime_minutes = 120
-# Maximum CPU worker count permitted on this device
 max_cpu_workers = 2
-# Maximum CPU/battery temperature in Celsius before throttling/shutdown (if thermal sensor available)
 max_temperature_c = 72.0
-# Process nice level (19 = lowest CPU priority, ideal for phone responsiveness)
 process_nice = 19
 
 [participation]
-# Real participation evidence provider: "miner_logs", "telemetry", "substrate_events"
 provider = "miner_logs"
-# Local evidence journal path
 journal_path = "data/participation.jsonl"
-# Daily distinct qblock participation target for daily mode (max network cap is 72)
 daily_qblock_target = 10
 
 [points]
-# Unofficial Local Estimator configuration
-# Aglais rules: 1 point per distinct qblock participation (max 72/day), 20 points per qblock win
-# Infrastructure bonuses MUST NOT be enabled unless independently verified and detected
 public_p2p = false
 public_api = false
 tls = false
 live_rpc = false
 telemetry = false
-# Set true only after the dashboard is genuinely live and independently verified as an eligible public feature\ndashboard = false
+dashboard = false
 
 [dashboard]
-# Lightweight local web dashboard for phone browser
 enabled = true
-# Bind address (127.0.0.1 for local phone access only, do NOT expose publicly)
 host = "127.0.0.1"
 port = 8080
